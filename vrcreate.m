@@ -1,23 +1,35 @@
 % 设置用户路径
-userpath('E:\coding\hdf52mat\AVRI');  % 使用单引号，确保路径正确
+userpath('E:\coding\hdf52mat\IEEE9');  % 使用单引号，确保路径正确
 
-% 假设 generator1vr.hdf5 文件在当前目录下，或使用完整路径
+% 假设 generator1vi.hdf5 文件在当前目录下，或使用完整路径
 filename = 'generator1vr.hdf5';
 
 train = {};
 test = {};
 % 循环读取文件内容
-for i = 1:1200
+for i = 1:1
     % 将数字i转换为字符串，然后拼接路径
-    path1 = strcat('/', num2str(i), '/gen_B01/vr');
-    path2 = strcat('/', num2str(i), '/gen_B01/vr');
-    path3 = strcat('/', num2str(i), '/gen_B01/vr');
+    path1 = strcat('/', num2str(i), '/pSSEGen1_1/vr');
+    path2 = strcat('/', num2str(i), '/pSSEGen1_1/vr');
+    path3 = strcat('/', num2str(i), '/pSSEGen1_1/vr');
     
     % 读取数据
     data_1 = h5read('generator1vr.hdf5', path1);
-    data_2 = h5read('generator2vr.hdf5', path2);
-    data_3 = h5read('generator3vr.hdf5', path3);
+    %data_1 = data_1(1:1);
+    data_2 = h5read('generator1vr.hdf5', path2);
+    %data_2 = data_2(1:1);
+    data_3 = h5read('generator1vr.hdf5', path3);
+    %data_3 = data_3(1:1);
     
+    % 假设data_2和data_3非空，获取它们的维度作为参考
+    ref_size = size(data_2, 1); % 以行数为参考
+    
+    % 若data_1为空，生成全零数据
+    if isempty(data_1)
+        data_1 = zeros(ref_size, 1); % 假设数据为列向量
+    end
+
+
     % 将数据放在一个cell数组里
     combined_data = [data_1, data_2, data_3].';
     
@@ -25,16 +37,19 @@ for i = 1:1200
     train{end+1} = combined_data;  % 每个train元素是一个cell数组，包含data_1, data_2, data_3
 end
 
-for i = 1201:1800
+for i = 1:1
     % 将数字i转换为字符串，然后拼接路径
-    path1 = strcat('/', num2str(i), '/gen_B01/vr');
-    path2 = strcat('/', num2str(i), '/gen_B01/vr');
-    path3 = strcat('/', num2str(i), '/gen_B01/vr');
+    path1 = strcat('/', num2str(i), '/pSSEGen1_1/vr');
+    path2 = strcat('/', num2str(i), '/pSSEGen1_1/vr');
+    path3 = strcat('/', num2str(i), '/pSSEGen1_1/vr');
     
     % 读取数据
     data_1 = h5read('generator1vr.hdf5', path1);
-    data_2 = h5read('generator2vr.hdf5', path2);
-    data_3 = h5read('generator3vr.hdf5', path3);
+    data_1 = data_1(1:1);
+    data_2 = h5read('generator1vr.hdf5', path2);
+    data_2 = data_2(1:1);
+    data_3 = h5read('generator1vr.hdf5', path3);
+    data_3 = data_3(1:1);
     
     % 将数据放在一个cell数组里
     combined_data = [data_1, data_2, data_3].';
@@ -43,16 +58,18 @@ for i = 1201:1800
     test{end+1} = combined_data;  % 每个train元素是一个cell数组，包含data_1, data_2, data_3
 end
 
-labels = h5read('generator1vr.hdf5', '/labels/final');
+labels = h5read('generator1vr.hdf5', '/labels/init');
+labels = rmmissing(labels);
 
 
 mts.train = train;
-mts.trainlabels = int32(labels(1:1200));
+mts.trainlabels = int32(labels(1:1));
 mts.test = test;
-mts.testlabels = int32(labels(1201:1800));
+mts.testlabels = int32(labels(1:1));
 
-mts.trainlabels(mts.trainlabels ~= 0) = 2;
 mts.trainlabels(mts.trainlabels == 0) = 1;
+mts.trainlabels(mts.trainlabels ~= 1) = 2;
 
-mts.testlabels(mts.testlabels ~= 0) = 2;
 mts.testlabels(mts.testlabels == 0) = 1;
+mts.testlabels(mts.testlabels ~= 1) = 2;
+

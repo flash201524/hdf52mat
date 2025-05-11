@@ -7,7 +7,7 @@ filename = 'generator1vi.hdf5';
 train = {};
 test = {};
 % 循环读取文件内容
-for i = 1:1930
+for i = 1:27716
     % 将数字i转换为字符串，然后拼接路径
     path1 = strcat('/', num2str(i), '/gen_B01/vi');
     path2 = strcat('/', num2str(i), '/gen_B01/vi');
@@ -28,7 +28,7 @@ for i = 1:1930
     train{end+1} = combined_data;  % 每个train元素是一个cell数组，包含data_1, data_2, data_3
 end
 
-for i = 1930:1931
+for i = 1:1
     % 将数字i转换为字符串，然后拼接路径
     path1 = strcat('/', num2str(i), '/gen_B01/vi');
     path2 = strcat('/', num2str(i), '/gen_B01/vi');
@@ -50,10 +50,10 @@ for i = 1930:1931
 end
 
 labels = h5read('generator1vi.hdf5', '/labels/final');
-
+labels = rmmissing(labels);
 
 mts.train = train;
-mts.trainlabels = int32(labels(1:3000));
+mts.trainlabels = int32(labels(1:27716));
 mts.test = test;
 mts.testlabels = int32(labels(1:1));
 
